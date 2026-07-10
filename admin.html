@@ -18,6 +18,8 @@
     .admin-list { display:grid; gap:12px; }
     .admin-item { border:1px solid var(--line); border-radius:16px; padding:14px; display:grid; grid-template-columns:1fr auto; gap:14px; }
     .admin-item h3 { font-size:18px; }
+    .admin-product-title { display:flex; align-items:center; gap:10px; }
+    .admin-thumb { width:48px; height:48px; border-radius:12px; object-fit:cover; background:var(--surface-2); }
     .admin-item p { margin:5px 0; color:var(--muted); font-size:13px; }
     .admin-actions { display:flex; gap:8px; }
     .small-button { border:1px solid var(--line); border-radius:999px; background:white; padding:8px 12px; cursor:pointer; }
@@ -56,7 +58,9 @@
               <option>Rings</option>
             </select>
           </label>
-          <label>Emoji / icon<input name="emoji" placeholder="💎" /></label>
+          <label>Image path (optional)<input name="image" placeholder="product-photo.webp" /></label>
+          <label>Badge (optional)<input name="badge" placeholder="Best Seller" /></label>
+          <label>Emoji / icon (fallback)<input name="emoji" placeholder="💎" /></label>
           <label>Description<textarea name="description" required placeholder="Describe the product..."></textarea></label>
           <button class="primary-button full-width" type="submit">Add Product</button>
         </form>
@@ -80,7 +84,18 @@
 
   <script src="data.js"></script>
   <script>
-    const KEYS = { products: "shineOnProducts", orders: "shineOnOrders" };
+    const KEYS = {
+      products: "shineOnProducts",
+      orders: "shineOnOrders",
+      catalogVersion: "shineOnCatalogVersion"
+    };
+    const CATALOG_VERSION = "2026-07-11-rumduol-1";
+
+    if (localStorage.getItem(KEYS.catalogVersion) !== CATALOG_VERSION) {
+      localStorage.setItem(KEYS.products, JSON.stringify(window.DEFAULT_PRODUCTS));
+      localStorage.setItem(KEYS.catalogVersion, CATALOG_VERSION);
+    }
+
     let products = JSON.parse(localStorage.getItem(KEYS.products)) || window.DEFAULT_PRODUCTS;
 
     function saveProducts() {
@@ -92,8 +107,13 @@
       list.innerHTML = products.map(p => `
         <div class="admin-item">
           <div>
-            <h3>${p.emoji || "💎"} ${p.name}</h3>
-            <p>${p.category} · $${Number(p.price).toFixed(2)}</p>
+            <div class="admin-product-title">
+              ${p.image
+                ? `<img class="admin-thumb" src="${p.image}" alt="${p.name}">`
+                : `<span style="font-size:28px">${p.emoji || "💎"}</span>`}
+              <h3>${p.name}</h3>
+            </div>
+            <p>${p.category} · $${Number(p.price).toFixed(2)}${p.badge ? ` · ${p.badge}` : ""}</p>
             <p>${p.description}</p>
           </div>
           <div class="admin-actions">
@@ -117,6 +137,8 @@
         name: data.name,
         price: Number(data.price),
         category: data.category,
+        image: data.image || "",
+        badge: data.badge || "",
         emoji: data.emoji || "💎",
         description: data.description
       });

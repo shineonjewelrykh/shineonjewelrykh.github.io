@@ -2,8 +2,16 @@
 const STORAGE_KEYS = {
   products: "shineOnProducts",
   cart: "shineOnCart",
-  orders: "shineOnOrders"
+  orders: "shineOnOrders",
+  catalogVersion: "shineOnCatalogVersion"
 };
+
+const CATALOG_VERSION = "2026-07-11-rumduol-1";
+
+if (localStorage.getItem(STORAGE_KEYS.catalogVersion) !== CATALOG_VERSION) {
+  localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(window.DEFAULT_PRODUCTS));
+  localStorage.setItem(STORAGE_KEYS.catalogVersion, CATALOG_VERSION);
+}
 
 const state = {
   products: JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || window.DEFAULT_PRODUCTS,
@@ -50,11 +58,19 @@ function renderProducts() {
     return;
   }
 
-  els.productGrid.innerHTML = filtered.map(product => `
+  els.productGrid.innerHTML = filtered.map(product => {
+    const productVisual = product.image
+      ? `<img src="${product.image}" alt="${product.name}" loading="lazy">`
+      : `<span>${product.emoji || "💎"}</span>`;
+    const productBadge = product.badge
+      ? `<div class="product-badge">${product.badge}</div>`
+      : "";
+
+    return `
     <article class="product-card">
       <div class="product-image">
-        <span>${product.emoji || "💎"}</span>
-        <div class="product-badge">Best Seller</div>
+        ${productVisual}
+        ${productBadge}
       </div>
       <div class="product-body">
         <small>${product.category}</small>
@@ -66,7 +82,8 @@ function renderProducts() {
         </div>
       </div>
     </article>
-  `).join("");
+  `;
+  }).join("");
 }
 
 window.addToCart = function(id) {
@@ -118,7 +135,11 @@ function renderCart() {
 
     return `
       <div class="cart-item">
-        <div class="cart-thumb">${product.emoji || "💎"}</div>
+        <div class="cart-thumb">${
+          product.image
+            ? `<img src="${product.image}" alt="${product.name}">`
+            : (product.emoji || "💎")
+        }</div>
         <div>
           <h4>${product.name}</h4>
           <strong>${money(product.price)}</strong>

@@ -34,3 +34,17 @@ This free version uses browser `localStorage`.
 - Change product examples in `data.js`.
 - Change shop text and contact links in `index.html`.
 - Change colors in `styles.css`.
+
+
+## Latest product update
+The product **ក្រវិលផ្ការំដួល** has been added for **$7.19** with the uploaded real photo and a **Best Seller** badge.
+
+When uploading this update to GitHub, upload:
+- `index.html`
+- `admin.html`
+- `styles.css`
+- `app.js`
+- `data.js`
+- `rumduol-flower-earrings.webp`
+
+Replace the existing files in the repository and commit the changes.
